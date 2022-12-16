@@ -1,30 +1,33 @@
 import { degrees, PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import download from "downloadjs";
 
-const generatePDF = async (name) => {
-  const existingPdfBytes = await fetch("Certificate.pdf").then((res) =>
+const generatePDF = async (data) => {
+  const { name, fatherName, branch, year, degree, course, grade } = data;
+  const existingPdfBytes = await fetch("degreez-fillForm.pdf").then((res) =>
     res.arrayBuffer()
   );
 
   // Load a PDFDocument from the existing PDF bytes
   const pdfDoc = await PDFDocument.load(existingPdfBytes);
 
-  // using documentation font
-  const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  // getting the form fields
+  const form = pdfDoc.getForm();
+  const nameField = form.getTextField("name");
+  const fatherNameField = form.getTextField("fatherName");
+  const branchField = form.getTextField("branch");
+  const yearField = form.getTextField("year");
+  const degreeField = form.getTextField("degree");
+  const courseField = form.getTextField("course");
+  const gradeField = form.getTextField("grade");
 
-  // Get the first page of the document
-  const pages = pdfDoc.getPages();
-  const firstPage = pages[0];
-
-  // Draw a string of text diagonally across the first page
-  firstPage.drawText(name, {
-    x: 300,
-    y: 270,
-    size: 58,
-    font: helveticaFont,
-    color: rgb(0.2, 0.84, 0.67),
-  });
-  console.log("drawwing");
+  // setting the text
+  nameField.setText(name);
+  fatherNameField.setText(fatherName);
+  branchField.setText(branch);
+  yearField.setText(year);
+  degreeField.setText(degree);
+  courseField.setText(course);
+  gradeField.setText(grade);
 
   // Serialize the PDFDocument to bytes (a Uint8Array)
   const pdfBytes = await pdfDoc.save();
